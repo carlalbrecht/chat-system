@@ -11,8 +11,10 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class LoginPage implements OnInit {
 
-  /// TODO change this to "/chat" once implemented
-  private readonly nextPage: string = "/dashboard";
+  public username: string = "";
+  public password: string = "";
+
+  private readonly nextPage: string = "/chat";
   private returnRoute: string | undefined = undefined;
 
 
@@ -31,7 +33,7 @@ export class LoginPage implements OnInit {
 
 
   public async login() {
-    if (await this.user.login("no", "password")) {
+    if (await this.user.login(this.username, this.password)) {
       this.router.navigate([
         this.returnRoute !== undefined ? this.returnRoute : this.nextPage
       ]);

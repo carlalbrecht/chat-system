@@ -3,13 +3,16 @@ const app = express();
 const http = require("http").Server(app);
 const cors = require("cors");
 
+const state = require("./state.js");
+state.init();
+
 const PORT = 3000;
 
 app.use(express.static("../dist/chat-system"));
 app.use(express.json());
-app.use(cors);
+app.use(cors());
 
-require("./api/auth.js")(app, __dirname);
+require("./api/auth.js")(app, __dirname, state);
 
 let server = http.listen(PORT, () => {
   const host = server.address().address;

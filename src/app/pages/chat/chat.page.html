@@ -1,2 +1,40 @@
-Chat is not implemented<br>
-<button (click)="dashboard()">Go to dashboard</button>
+<div id="root">
+  <div id="group-list">
+    <div class="group-icon" id="new-group">
+      <img src="/assets/icons/plus.svg">
+    </div>
+  </div>
+
+  <div id="sidebar">
+    <div id="channel-list">
+
+    </div>
+
+    <div id="user-info-box">
+      <img src="/assets/icons/account.svg">
+      <span id="username">{{ username }}</span>
+
+      <div class="image-button" (click)="dashboard()">
+        <img src="/assets/icons/settings.svg">
+      </div>
+
+      <div class="image-button danger" (click)="logout()">
+        <img src="/assets/icons/exit.svg">
+      </div>
+    </div>
+  </div>
+
+  <div id="chat-region">
+    <div id="chat-toolbar">
+
+    </div>
+
+    <div id="chat">
+
+    </div>
+
+    <div id="chatbox-container">
+      <input type="text" id="chatbox" [placeholder]="'Message #' + currentChannel" />
+    </div>
+  </div>
+</div>
