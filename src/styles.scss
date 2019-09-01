@@ -33,6 +33,17 @@ html, body {
 }
 
 
+#root {
+  filter: blur(0px);
+  transition: filter 0.25s ease-out;
+}
+
+
+.modal-visible #root {
+  filter: blur(10px);
+}
+
+
 .image-button {
   width: 24px;
   height: 24px;
@@ -52,5 +63,23 @@ html, body {
     img {
       filter: invert(100%) brightness(200%) !important;
     }
+  }
+}
+
+
+button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+
+  outline: none;
+  background-color: #E6E6E6;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  &:hover {
+    background-color: #D6D6D6;
   }
 }

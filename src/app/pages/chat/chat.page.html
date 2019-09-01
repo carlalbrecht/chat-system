@@ -9,7 +9,7 @@
     <div id="channel-toolbar">
       <span>{{ currentGroup }}</span>
 
-      <div class="image-button" *ngIf="user.hasPermission('group_assist')">
+      <div class="image-button" (click)="addChannel()" *ngIf="user.hasPermission('group_assist')">
         <img src="/assets/icons/plus.svg">
       </div>
     </div>
@@ -44,12 +44,26 @@
       </div>
     </div>
 
-    <div id="chat">
+    <div id="chat-main">
+      <div id="chat-area">
+        <div id="chat">
 
-    </div>
+        </div>
 
-    <div id="chatbox-container">
-      <input type="text" id="chatbox" [placeholder]="'Message #' + currentChannel" />
+        <div id="chatbox-container">
+          <input type="text" id="chatbox" [placeholder]="'Message #' + currentChannel" />
+        </div>
+      </div>
+
+      <div id="user-list">
+        <h3>Offline &ndash; 0</h3>
+      </div>
     </div>
   </div>
 </div>
+
+<modal-dialog id="modal-create-channel">
+  <h1>Create Channel</h1>
+  <input type="text" [(ngModel)]="newChannelName" />
+  <button>Create</button>
+</modal-dialog>

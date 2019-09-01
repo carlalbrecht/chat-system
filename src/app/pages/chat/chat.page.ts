@@ -2,6 +2,7 @@ import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { UserService } from 'src/app/services/user.service';
+import { ModalService } from 'src/app/services/modal.service';
 
 
 @Component({
@@ -18,11 +19,17 @@ export class ChatPage {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private modal: ModalService,
     public user: UserService
   ) {
     route.params.subscribe(params => {
       console.log(params);
     });
+  }
+
+
+  public addChannel() {
+    this.modal.open("modal-create-channel");
   }
 
 
