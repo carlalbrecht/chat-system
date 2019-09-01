@@ -1,5 +1,7 @@
 import { Component } from "@angular/core";
 
+import { UserService } from 'src/app/services/user.service';
+
 
 @Component({
   selector: "page-dashboard",
@@ -8,6 +10,6 @@ import { Component } from "@angular/core";
 })
 export class DashboardPage {
 
-  constructor() { }
+  constructor(private user: UserService) { }
 
 }

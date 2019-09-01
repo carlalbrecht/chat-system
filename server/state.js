@@ -21,7 +21,7 @@ const DEFAULTS = {
     "super": { role: "super_admin" }
   },
 
-  channels: []
+  groups: []
 }
 
 /**

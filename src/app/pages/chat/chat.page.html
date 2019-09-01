@@ -1,6 +1,6 @@
 <div id="root">
   <div id="group-list">
-    <div class="group-icon" id="new-group">
+    <div class="group-icon" id="new-group" *ngIf="user.hasPermission('group_admin')">
       <img src="/assets/icons/plus.svg">
     </div>
   </div>
@@ -12,7 +12,7 @@
 
     <div id="user-info-box">
       <img src="/assets/icons/account.svg">
-      <span id="username">{{ username }}</span>
+      <span id="username">{{ user.name }}</span>
 
       <div class="image-button" (click)="dashboard()">
         <img src="/assets/icons/settings.svg">
@@ -26,7 +26,14 @@
 
   <div id="chat-region">
     <div id="chat-toolbar">
+      <div id="chat-title">
+        <img src="/assets/icons/hash.svg">
+        <span>{{ currentChannel }}</span>
+      </div>
 
+      <div class="image-button">
+        <img src="/assets/icons/account-add.svg">
+      </div>
     </div>
 
     <div id="chat">

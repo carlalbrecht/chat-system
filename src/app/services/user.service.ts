@@ -9,6 +9,17 @@ import { HttpClient } from "@angular/common/http";
 const HOST: string = isDevMode() ? "//localhost:3000" : "";
 
 
+/**
+ * User permission levels.
+ */
+const ROLES = [
+  "user",
+  "group_assist",
+  "group_admin",
+  "super_admin"
+];
+
+
 export interface UserAttributes {
   role: string;
 }
@@ -63,7 +74,7 @@ export class UserService {
 
     try {
       // Submit authentication request
-      let response = await this.http.post<Response>(HOST + "/api/auth", {
+      let response = await this.http.post<Response>(`${HOST}/api/auth`, {
         username: username,
         password: password
       }).toPromise();
@@ -73,7 +84,7 @@ export class UserService {
         this.userdata.username = username;
         localStorage.setItem("username", username);
 
-        this.getUserAttributes();
+        await this.getUserAttributes();
 
         return true;
       } else {
@@ -99,8 +110,36 @@ export class UserService {
   }
 
 
-  private async getUserAttributes() {
+  /**
+   * Returns whether or not the current user meets the minimum requirements to
+   * perform an action.
+   *
+   * @param minimum The named role to meet or exceed
+   * @throws If `minimum` does not name a valid role
+   * @see ROLES
+   */
+  public hasPermission(minimum: string): boolean {
+    // Skip if attributes aren't loaded yet
+    if (this.userdata.attributes === undefined) return false;
 
+    const minimumID = ROLES.indexOf(minimum);
+    const roleID = ROLES.indexOf(this.userdata.attributes.role);
+
+    if (minimumID < 0) throw new Error("Invalid minimum role name");
+
+    return roleID >= minimumID;
+  }
+
+
+  private async getUserAttributes() {
+    try {
+      // Submit attributes request
+      this.userdata.attributes = await this.http.get<UserAttributes>(
+        `${HOST}/api/users/${this.userdata.username}/attributes`
+      ).toPromise();
+    } catch (resp) {
+      return false;
+    }
   }
 
 }

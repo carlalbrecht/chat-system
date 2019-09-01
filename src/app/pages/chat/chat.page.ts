@@ -11,16 +11,12 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class ChatPage {
 
-  public currentChannel: string = "";
-
-  public get username(): string {
-    return this.user.name;
-  }
+  public currentChannel: string = "the-current-channel";
 
 
   constructor(
     private router: Router,
-    private user: UserService
+    public user: UserService
   ) { }
 
 
