@@ -3,6 +3,10 @@
  * Google's devs look like amateurs.
  */
 const fs = require("fs");
+const path = require("path");
+
+
+const OUTFILE = "data/state.json";
 
 
 const ROLES = [
@@ -51,40 +55,41 @@ module.exports = {
 
   /**
    * The current state of the program. This is set by `init()` to contain either
-   * the deserialised contents of `state.json`, or set to `DEFAULTS`, if
-   * `state.json` does not exist.
+   * the deserialised contents of `OUTFILE`, or set to `DEFAULTS`, if `OUTFILE`
+   * does not exist.
    */
   state: undefined,
 
 
   /**
-   * Loads persistent state from `state.json` if it exists. If it does not,
+   * Loads persistent state from `OUTFILE` if it exists. If it does not,
    * `DEFAULTS` is loaded, then immediately saved by calling `sync()`.
    */
   init: function () {
-    if (fs.existsSync("state.json")) {
-      console.log("Reloading existing state.json");
+    if (fs.existsSync(OUTFILE)) {
+      console.log("Reloading ${OUTFILE}");
 
-      this.state = JSON.parse(fs.readFileSync("state.json", { encoding: "utf-8" }));
+      this.state = JSON.parse(fs.readFileSync(OUTFILE, { encoding: "utf-8" }));
     } else {
       console.log("Creating new state with defaults");
 
       this.state = DEFAULTS;
+      fs.mkdirSync(path.dirname(OUTFILE), { recursive: true });
       this.sync();
     }
   },
 
 
   /**
-   * Writes the current `state` to `state.json`.
+   * Writes the current `state` to `OUTFILE`.
    */
   sync: function () {
     if (this.state === undefined) throw new Error("init() must be called first");
 
-    fs.writeFile("state.json", JSON.stringify(this.state), err => {
+    fs.writeFile(OUTFILE, JSON.stringify(this.state), err => {
       if (err) throw err;
 
-      console.log("Saved current state to state.json");
+      console.log(`Saved current state to ${OUTFILE}`);
     })
   },
 
