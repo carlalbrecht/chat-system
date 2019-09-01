@@ -1,1 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+@font-face {
+  font-family: "Noto Sans";
+  src: url("assets/fonts/NotoSans-Regular.ttf");
+}
+
+@font-face {
+  font-family: "Noto Sans Light";
+  src: url("assets/fonts/NotoSans-Light.ttf");
+}
+
+* {
+  font-family: "Noto Sans";
+
+  // Disable text selection on everything by default (selectable text should be
+  // explicitly marked as such)
+  user-select: none;
+}

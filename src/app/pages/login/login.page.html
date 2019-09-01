@@ -1,0 +1,15 @@
+<div id="root">
+  <div id="login-box">
+    <form (ngSubmit)="login()" id="login-box-content">
+      <h1>Chat Client™</h1>
+
+      <span>Username</span>
+      <input type="text" name="username" [(ngModel)]="username" />
+
+      <span class="form-spacing">Password</span>
+      <input type="password" name="password" [(ngModel)]="password" />
+
+      <input type="submit" class="major-button" value="Login" />
+    </form>
+  </div>
+</div>

@@ -1,14 +1,19 @@
 {
   "name": "chat-system",
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Angular + Express live chat service",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "dist": "ng build --prod=true --sourceMap=false --vendorChunk=true --extractCss=true --buildOptimizer=true --aot=true --optimization=true",
+    "serve": "npm run dist && node server/server.js",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "postinstall": "cd server && npm install"
   },
+  "main": "server/server.js",
   "private": true,
   "dependencies": {
     "@angular/animations": "~8.1.2",
