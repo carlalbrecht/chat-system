@@ -14,9 +14,11 @@ const HOST: string = isDevMode() ? "//localhost:3000" : "";
 /**
  * Mapping of usernames to user attributes.
  */
-export interface UserList {
-  [username: string]: UserAttributes
+export interface UserRelationalMapping<T> {
+  [username: string]: T
 };
+
+type UserList = UserRelationalMapping<UserAttributes>;
 
 
 @Injectable({

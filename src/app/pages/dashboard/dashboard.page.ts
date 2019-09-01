@@ -1,7 +1,14 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, NgZone } from "@angular/core";
 
-import { UserService, ROLES } from "src/app/services/user.service";
-import { UserListService, UserList } from "src/app/services/user-list.service";
+import { UserAttributes, UserService, ROLES } from "src/app/services/user.service";
+import { UserListService, UserRelationalMapping } from "src/app/services/user-list.service";
+
+
+interface RenamableUserAttributes extends UserAttributes {
+  new_name?: string;
+}
+
+type RenamableUserList = UserRelationalMapping<RenamableUserAttributes>;
 
 
 @Component({
@@ -13,7 +20,7 @@ export class DashboardPage implements OnInit {
 
   public readonly roles = ROLES;
 
-  public users: UserList = {};
+  public users: RenamableUserList = {};
 
 
   /**
@@ -23,13 +30,14 @@ export class DashboardPage implements OnInit {
 
 
   constructor(
+    private zone: NgZone,
     public user: UserService,
     private userList: UserListService
   ) { }
 
 
   public async ngOnInit() {
-    this.users = await this.userList.getList();
+    await this.reloadUsers();
   }
 
 
@@ -53,14 +61,28 @@ export class DashboardPage implements OnInit {
   }
 
 
-  public async cancelUsersEdit() {
+  public async reloadUsers() {
     this.users = await this.userList.getList();
+
+    this.zone.run(() => {
+      for (let user of Object.keys(this.users)) {
+        this.users[user].new_name = user;
+      }
+    });
   }
 
 
   public async saveUsersEdit() {
-    await this.userList.setList(this.users);
-    this.users = await this.userList.getList();
+    let newUsers = {};
+
+    // Copy all users and rename
+    for (let user of Object.keys(this.users)) {
+      newUsers[this.users[user].new_name] = this.users[user];
+      delete newUsers[this.users[user].new_name].new_name;
+    }
+
+    await this.userList.setList(newUsers);
+    await this.reloadUsers();
   }
 
 }
