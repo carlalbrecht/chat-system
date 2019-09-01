@@ -123,6 +123,33 @@ module.exports = {
    */
   getUser: function (name) {
     return this.state.users[name];
+  },
+
+
+  /**
+   * Dumps the user list object.
+   *
+   * @returns {Object} Relational mapping between usernames and attributes
+   */
+  getUserList: function () {
+    return this.state.users;
+  },
+
+
+  /**
+   * Overwrites the user list! This is dirty, but it works for the demo.
+   *
+   * @param {Object} list List of users, in the same format as `getUserList()`
+   */
+  setUserList: function (list) {
+    try {
+      this.state.users = list;
+      this.sync();
+
+      return true;
+    } catch {
+      return false;
+    }
   }
 
 }

@@ -3,6 +3,7 @@ import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { Routes, RouterModule } from "@angular/router";
 
+import { SharedModule } from 'src/app/shared.module';
 import { LoginPage } from "./login.page";
 
 
@@ -18,7 +19,8 @@ const routes: Routes = [
   imports: [
     RouterModule.forChild(routes),
     CommonModule,
-    FormsModule
+    FormsModule,
+    SharedModule
   ],
   declarations: [LoginPage]
 })

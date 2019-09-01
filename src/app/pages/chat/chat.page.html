@@ -6,6 +6,14 @@
   </div>
 
   <div id="sidebar">
+    <div id="channel-toolbar">
+      <span>{{ currentGroup }}</span>
+
+      <div class="image-button" *ngIf="user.hasPermission('group_assist')">
+        <img src="/assets/icons/plus.svg">
+      </div>
+    </div>
+
     <div id="channel-list">
 
     </div>
@@ -31,7 +39,7 @@
         <span>{{ currentChannel }}</span>
       </div>
 
-      <div class="image-button">
+      <div class="image-button" *ngIf="user.hasPermission('group_assist')">
         <img src="/assets/icons/account-add.svg">
       </div>
     </div>

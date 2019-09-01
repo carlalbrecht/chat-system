@@ -12,7 +12,7 @@ const HOST: string = isDevMode() ? "//localhost:3000" : "";
 /**
  * User permission levels.
  */
-const ROLES = [
+export const ROLES = [
   "user",
   "group_assist",
   "group_admin",

@@ -2,6 +2,41 @@
   <div id="content">
     <h1>Dashboard</h1>
     <a routerLink="/chat">Return to chat</a>
-    <h1>User Management</h1>
+
+    <ng-container *ngIf="user.hasPermission('super_admin')">
+      <h1>User Management</h1>
+
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Role</th>
+        </tr>
+
+        <tr *ngFor="let key of objectKeys(users)">
+          <td class="expand">{{ key }}</td>
+          <!-- <td class="expand" *ngIf="key != 'super'">
+            <input type="text" [(ngModel)]="key" />
+          </td> -->
+
+          <td>
+            <select [(ngModel)]="users[key].role" [disabled]="key == 'super'">
+              <option *ngFor="let role of roles" [ngValue]="role">
+                {{ role | stripsnakecase | titlecase }}
+              </option>
+            </select>
+          <td>
+            <div class="image-button" (click)="deleteUser(key)" [class.invisible]="key == 'super'">
+              <img src="/assets/icons/account-remove.svg">
+            </div>
+          </td>
+        </tr>
+      </table>
+
+      <div class="action-row">
+        <button (click)="generateUser()">Add User</button>
+        <button (click)="cancelUsersEdit()">Cancel</button>
+        <button (click)="saveUsersEdit()">Save</button>
+      </div>
+    </ng-container>
   </div>
 </div>

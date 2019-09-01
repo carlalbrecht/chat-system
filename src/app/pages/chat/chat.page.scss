@@ -51,6 +51,25 @@ $accent-fg: #A537FD;
   display: flex;
   flex-direction: column;
 
+  #channel-toolbar {
+    height: 40px;
+    padding: 10px 15px;
+
+    border-bottom: 1px solid #DDD;
+
+    display: flex;
+    align-items: center;
+
+    span {
+      font-family: "Noto Sans Bold";
+      font-size: 13.5pt;
+
+      color: #333;
+
+      flex-grow: 1;
+    }
+  }
+
   #channel-list {
     flex-grow: 1;
   }

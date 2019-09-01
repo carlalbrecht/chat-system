@@ -11,6 +11,7 @@ import { UserService } from 'src/app/services/user.service';
 })
 export class ChatPage {
 
+  public currentGroup: string = "Current Group";
   public currentChannel: string = "the-current-channel";
 
 

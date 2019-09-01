@@ -1,7 +1,9 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
+import { FormsModule } from '@angular/forms';
 import { Routes, RouterModule } from "@angular/router";
 
+import { SharedModule } from 'src/app/shared.module';
 import { DashboardPage } from "./dashboard.page";
 
 
@@ -16,7 +18,9 @@ const routes: Routes = [
 @NgModule({
   imports: [
     RouterModule.forChild(routes),
-    CommonModule
+    FormsModule,
+    CommonModule,
+    SharedModule
   ],
   declarations: [DashboardPage]
 })
