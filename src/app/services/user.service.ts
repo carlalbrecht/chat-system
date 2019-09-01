@@ -40,6 +40,8 @@ export class UserService {
     attributes: undefined
   }
 
+  private attributePollingTask: ReturnType<typeof setInterval>;
+
 
   public get authenticated(): boolean {
     return this.userdata.username !== null;
@@ -62,6 +64,7 @@ export class UserService {
     // Request user attributes from server again if we are already logged in
     if (this.userdata.username !== null) {
       this.getUserAttributes();
+      this.attributePollingTask = setInterval(this.getUserAttributes.bind(this), 15000);
     }
   }
 
@@ -85,14 +88,12 @@ export class UserService {
         localStorage.setItem("username", username);
 
         await this.getUserAttributes();
+        this.attributePollingTask = setInterval(this.getUserAttributes.bind(this), 15000);
 
         return true;
       } else {
         // Authentication failed - forcefully ensure that we're logged out
-        this.userdata.username = null;
-        this.userdata.attributes = undefined;
-
-        localStorage.removeItem("username");
+        this.logout();
 
         return false;
       }
@@ -103,6 +104,8 @@ export class UserService {
 
 
   public logout() {
+    clearInterval(this.attributePollingTask);
+
     this.userdata.username = null;
     this.userdata.attributes = undefined;
 

@@ -1,5 +1,5 @@
 import { Component } from "@angular/core";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 
 import { UserService } from 'src/app/services/user.service';
 
@@ -16,9 +16,14 @@ export class ChatPage {
 
 
   constructor(
+    private route: ActivatedRoute,
     private router: Router,
     public user: UserService
-  ) { }
+  ) {
+    route.params.subscribe(params => {
+      console.log(params);
+    });
+  }
 
 
   public dashboard() {

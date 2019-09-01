@@ -34,7 +34,7 @@ export class DashboardPage implements OnInit {
 
 
   public generateUser() {
-    const PREFIX = "#new_user_";
+    const PREFIX = "$new_user_";
     let i = 0;
 
     // Generate unique name
