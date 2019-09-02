@@ -99,7 +99,8 @@
               </div>
             </ng-container>
 
-            <div class="image-button clear" [class.invisible]="!user.hasPermission('group_admin') && !isAssistant()">
+            <div class="image-button clear" [class.invisible]="!user.hasPermission('group_admin') && !isAssistant()"
+              (click)="removeUser(member)">
               <img src="/assets/icons/cross.svg">
             </div>
           </div>

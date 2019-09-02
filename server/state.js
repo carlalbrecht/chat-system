@@ -334,6 +334,38 @@ module.exports = {
       console.error(err);
       return false;
     }
+  },
+
+
+  removeUserFromChannel: function (groupID, channelID, username) {
+    if (this.state.groups[groupID] === undefined) return false;
+    let group = this.state.groups[groupID];
+
+    if (group.channels[channelID] === undefined) return false;
+    let channel = group.channels[channelID];
+
+    try {
+      channel.members = channel.members.filter(x => x !== username);
+
+      let exists = false;
+      for (let id of Object.keys(group.channels)) {
+        if (group.channels[id].members.includes(username)) {
+          exists = true;
+          break;
+        }
+      }
+
+      if (!exists) {
+        // User can be completely removed from group
+        group.members = group.members.filter(x => x !== username);
+      }
+
+      this.sync();
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
   }
 
 }

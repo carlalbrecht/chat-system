@@ -163,7 +163,13 @@ export class ChatPage implements OnInit {
   public async doAddUser() {
     this.modal.close("modal-add-user");
     await this.channels.addUser(this.currentGroup, this.currentChannel, this.newUserName);
-    this.groupList = await this.groups.getGroups();
+    this.channelList = await this.channels.getChannels(this.currentGroup);
+  }
+
+
+  public async removeUser(username: string) {
+    await this.channels.removeUser(this.currentGroup, this.currentChannel, username);
+    this.channelList = await this.channels.getChannels(this.currentGroup);
   }
 
 

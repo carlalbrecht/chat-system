@@ -33,4 +33,12 @@ module.exports = (app, path, state) => {
       )
     });
   })
+
+  app.post("/api/groups/:groupID/channels/:channelID/removeuser", (request, response) => {
+    response.json({
+      success: state.removeUserFromChannel(
+        request.params.groupID, request.params.channelID, request.body["username"]
+      )
+    });
+  })
 }

@@ -90,4 +90,21 @@ export class ChannelsService {
     }
   }
 
+
+  public async removeUser(groupID: string, channelID: string, username: string) {
+    interface Response {
+      success: boolean;
+    }
+
+    try {
+      return (await this.http.post<Response>(
+        `${HOST}/api/groups/${groupID}/channels/${channelID}/removeuser`, {
+          username: username
+        }
+      ).toPromise()).success;
+    } catch {
+      return false;
+    }
+  }
+
 }
