@@ -119,6 +119,12 @@ export class ChatPage implements OnInit {
   }
 
 
+  public async deleteGroup() {
+    await this.groups.removeGroup(this.currentGroup);
+    this.router.navigate(["/chat"]);
+  }
+
+
   public addChannel() {
     this.newChannelName = "";
     this.modal.open("modal-create-channel");
@@ -134,6 +140,12 @@ export class ChatPage implements OnInit {
     this.modal.close("modal-create-channel");
     await this.channels.createChannel(this.currentGroup, this.newChannelName);
     this.channelList = await this.channels.getChannels(this.currentGroup);
+  }
+
+
+  public async deleteChannel() {
+    await this.channels.removeChannel(this.currentGroup, this.currentChannel);
+    this.router.navigate([`/chat/${this.currentGroup}`]);
   }
 
 

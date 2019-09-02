@@ -58,4 +58,19 @@ export class ChannelsService {
     }
   }
 
+
+  public async removeChannel(groupID: string, channelID): Promise<boolean> {
+    interface Response {
+      success: boolean;
+    }
+
+    try {
+      return (await this.http.delete<Response>(
+        `${HOST}/api/groups/${groupID}/channels/${channelID}`
+      ).toPromise()).success;
+    } catch {
+      return false;
+    }
+  }
+
 }

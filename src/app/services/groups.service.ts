@@ -60,6 +60,19 @@ export class GroupsService {
   }
 
 
+  public async removeGroup(groupID: string) {
+    interface Response {
+      success: boolean;
+    }
+
+    try {
+      return (await this.http.delete<Response>(`${HOST}/api/groups/${groupID}`).toPromise()).success;
+    } catch {
+      return false;
+    }
+  }
+
+
   public async setAssistants(groupID: string, assistants: string[]) {
     interface Response {
       success: boolean;

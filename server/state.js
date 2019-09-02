@@ -209,6 +209,19 @@ module.exports = {
   },
 
 
+  removeGroup: function (groupID) {
+    try {
+      delete this.state.groups[groupID];
+      this.sync();
+
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
+
+
   /**
    * Returns an object containing the groups that the user is a member of.
    *
@@ -270,6 +283,21 @@ module.exports = {
       return true;
     } catch (err) {
       console.error(err);
+      return false;
+    }
+  },
+
+
+  removeChannel: function (groupID, channelID) {
+    if (this.state.groups[groupID] === undefined) return false;
+
+    try {
+      let group = this.state.groups[groupID];
+      delete group.channels[channelID];
+      this.sync();
+
+      return true;
+    } catch (err) {
       return false;
     }
   },

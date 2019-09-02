@@ -15,7 +15,10 @@
       <ng-container *ngIf="currentGroup !== undefined">
         <span>{{ groupList[currentGroup].name }}</span>
 
-        <!-- TODO add group assist to this -->
+        <div class="image-button danger" (click)="deleteGroup()" *ngIf="user.hasPermission('group_admin')">
+          <img src="/assets/icons/delete.svg">
+        </div>
+
         <div class="image-button" (click)="addChannel()" *ngIf="user.hasPermission('group_admin') || isAssistant()">
           <img src="/assets/icons/plus.svg">
         </div>
@@ -60,7 +63,6 @@
         </ng-container>
       </div>
 
-      <!-- TODO add group assist to this -->
       <ng-container *ngIf="currentChannel !== undefined">
         <div class="image-button" (click)="addUser()" *ngIf="user.hasPermission('group_admin') || isAssistant()">
           <img src="/assets/icons/account-add.svg">
