@@ -272,10 +272,8 @@ $accent-fg: #A537FD;
     margin-left: 1em;
   }
 
-  &.assistant {
-    span {
-      color: #f15a22;
-    }
+  & span.assistant {
+    color: #f15a22;
   }
 }
 

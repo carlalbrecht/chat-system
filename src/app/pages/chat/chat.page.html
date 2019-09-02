@@ -112,7 +112,7 @@
 
 <modal-dialog id="modal-create-group">
   <h1>Create Group</h1>
-  <form (onsubmit)="doAddGroup()">
+  <form (ngSubmit)="doAddGroup()">
     <input name="name" type="text" [(ngModel)]="newGroupName" placeholder="Group Name" />
 
     <div class="action-row">
@@ -125,7 +125,7 @@
 
 <modal-dialog id="modal-create-channel">
   <h1>Create Channel</h1>
-  <form (onsubmit)="doAddChannel()">
+  <form (ngSubmit)="doAddChannel()">
     <input name="name" type="text" [(ngModel)]="newChannelName" placeholder="channel-name" />
 
     <div class="action-row">
@@ -138,7 +138,7 @@
 
 <modal-dialog id="modal-add-user">
   <h1>Add User to Channel</h1>
-  <form (onsubmit)="doAddUser()">
+  <form (ngSubmit)="doAddUser()">
     <input name="name" type="text" [(ngModel)]="newUserName" placeholder="user_name" />
 
     <div class="action-row">

@@ -25,4 +25,12 @@ module.exports = (app, path, state) => {
   app.delete("/api/groups/:groupID/channels/:channelID", (request, response) => {
     response.json({ success: state.removeChannel(request.params.groupID, request.params.channelID) });
   })
+
+  app.post("/api/groups/:groupID/channels/:channelID/adduser", (request, response) => {
+    response.json({
+      success: state.addUserToChannel(
+        request.params.groupID, request.params.channelID, request.body["username"]
+      )
+    });
+  })
 }

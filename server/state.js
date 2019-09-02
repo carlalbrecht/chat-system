@@ -134,7 +134,9 @@ module.exports = {
         }
       });
 
-
+      this.state.users[name] = merged_attributes;
+      this.sync();
+      return { success: true };
     }
   },
 
@@ -305,6 +307,33 @@ module.exports = {
 
   getChannels: function (groupID) {
     return this.state.groups[groupID].channels;
+  },
+
+
+  addUserToChannel: function (groupID, channelID, username) {
+    if (this.state.groups[groupID] === undefined) return false;
+    let group = this.state.groups[groupID];
+
+    if (group.channels[channelID] === undefined) return false;
+    let channel = group.channels[channelID];
+
+    try {
+      this.createUser(username, {});
+
+      if (!channel.members.includes(username)) {
+        channel.members.push(username);
+      }
+
+      if (!group.members.includes(username)) {
+        group.members.push(username);
+      }
+
+      this.sync();
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
   }
 
 }

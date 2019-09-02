@@ -59,7 +59,7 @@ export class ChannelsService {
   }
 
 
-  public async removeChannel(groupID: string, channelID): Promise<boolean> {
+  public async removeChannel(groupID: string, channelID: string): Promise<boolean> {
     interface Response {
       success: boolean;
     }
@@ -67,6 +67,23 @@ export class ChannelsService {
     try {
       return (await this.http.delete<Response>(
         `${HOST}/api/groups/${groupID}/channels/${channelID}`
+      ).toPromise()).success;
+    } catch {
+      return false;
+    }
+  }
+
+
+  public async addUser(groupID: string, channelID: string, username: string) {
+    interface Response {
+      success: boolean;
+    }
+
+    try {
+      return (await this.http.post<Response>(
+        `${HOST}/api/groups/${groupID}/channels/${channelID}/adduser`, {
+          username: username
+        }
       ).toPromise()).success;
     } catch {
       return false;
