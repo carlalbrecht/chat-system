@@ -1,5 +1,10 @@
 <div id="root">
   <div id="group-list">
+    <div class="group-icon" [class.selected]="currentGroup == groupID" *ngFor="let groupID of objectKeys(groupList)"
+      (click)="selectGroup(groupID)">
+      <span>{{ groupList[groupID].name | initials }}</span>
+    </div>
+
     <div class="group-icon" id="new-group" (click)="addGroup()" *ngIf="user.hasPermission('group_admin')">
       <img src="/assets/icons/plus.svg">
     </div>
@@ -7,15 +12,29 @@
 
   <div id="sidebar">
     <div id="channel-toolbar">
-      <span>{{ currentGroup }}</span>
+      <ng-container *ngIf="currentGroup !== undefined">
+        <span>{{ groupList[currentGroup].name }}</span>
 
-      <div class="image-button" (click)="addChannel()" *ngIf="user.hasPermission('group_assist')">
-        <img src="/assets/icons/plus.svg">
-      </div>
+        <!-- TODO add group assist to this -->
+        <div class="image-button" (click)="addChannel()" *ngIf="user.hasPermission('group_admin') || isAssistant()">
+          <img src="/assets/icons/plus.svg">
+        </div>
+      </ng-container>
     </div>
 
     <div id="channel-list">
+      <ng-container *ngIf="currentGroup !== undefined">
+        <div class="channel-selector" [class.selected]="currentChannel == channelID"
+          *ngFor="let channelID of objectKeys(channelList)" (click)="selectChannel(channelID)">
+          <img src="/assets/icons/hash.svg">
+          <span>{{ channelList[channelID].name }}</span>
 
+          <div class="image-button clear" (click)="deleteChannel(channelID)"
+            [class.invisible]="currentChannel != channelID || !user.hasPermission('group_admin')">
+            <img src="/assets/icons/cross.svg">
+          </div>
+        </div>
+      </ng-container>
     </div>
 
     <div id="user-info-box">
@@ -35,13 +54,18 @@
   <div id="chat-region">
     <div id="chat-toolbar">
       <div id="chat-title">
-        <img src="/assets/icons/hash.svg">
-        <span>{{ currentChannel }}</span>
+        <ng-container *ngIf="currentChannel !== undefined">
+          <img src="/assets/icons/hash.svg">
+          <span>{{ channelList[currentChannel].name }}</span>
+        </ng-container>
       </div>
 
-      <div class="image-button" *ngIf="user.hasPermission('group_assist')">
-        <img src="/assets/icons/account-add.svg">
-      </div>
+      <!-- TODO add group assist to this -->
+      <ng-container *ngIf="currentChannel !== undefined">
+        <div class="image-button" (click)="addUser()" *ngIf="user.hasPermission('group_admin') || isAssistant()">
+          <img src="/assets/icons/account-add.svg">
+        </div>
+      </ng-container>
     </div>
 
     <div id="chat-main">
@@ -51,12 +75,33 @@
         </div>
 
         <div id="chatbox-container">
-          <input type="text" id="chatbox" [placeholder]="'Message #' + currentChannel" />
+          <input type="text" id="chatbox"
+            [placeholder]="currentChannel !== undefined ? 'Message #' + channelList[currentChannel].name : ''" />
         </div>
       </div>
 
       <div id="user-list">
-        <h3>Offline &ndash; 0</h3>
+        <ng-container *ngIf="currentChannel !== undefined">
+          <h3>Offline &ndash; {{ channelList[currentChannel].members.length }}</h3>
+
+          <div class="user-selector" *ngFor="let member of channelList[currentChannel].members">
+            <span [class.assistant]="isAssistant(member)">{{ member }}</span>
+
+            <ng-container *ngIf="user.hasPermission('group_admin')">
+              <div class="image-button clear" (click)="removeAssistant(member)" *ngIf="isAssistant(member)">
+                <img src="/assets/icons/shield-remove.svg">
+              </div>
+
+              <div class="image-button clear" (click)="addAssistant(member)" *ngIf="!isAssistant(member)">
+                <img src="/assets/icons/shield-plus.svg">
+              </div>
+            </ng-container>
+
+            <div class="image-button clear" [class.invisible]="!user.hasPermission('group_admin') && !isAssistant()">
+              <img src="/assets/icons/cross.svg">
+            </div>
+          </div>
+        </ng-container>
       </div>
     </div>
   </div>
@@ -84,6 +129,19 @@
     <div class="action-row">
       <button (click)="cancelAddChannel()">Cancel</button>
       <button class="primary-action" (click)="doAddChannel()">Create</button>
+    </div>
+  </form>
+</modal-dialog>
+
+
+<modal-dialog id="modal-add-user">
+  <h1>Add User to Channel</h1>
+  <form (onsubmit)="doAddUser()">
+    <input name="name" type="text" [(ngModel)]="newUserName" placeholder="user_name" />
+
+    <div class="action-row">
+      <button (click)="cancelAddUser()">Cancel</button>
+      <button class="primary-action" (click)="doAddUser()">Add User</button>
     </div>
   </form>
 </modal-dialog>

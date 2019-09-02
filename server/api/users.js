@@ -6,6 +6,10 @@ module.exports = (app, path, state) => {
     response.json(state.getUser(request.params.userid));
   });
 
+  app.get("/api/users/:userid/groups", (request, response) => {
+    response.json(state.getMemberGroups(request.params.userid));
+  })
+
   app.get("/api/users", (_, response) => {
     response.json(state.getUserList());
   })

@@ -14,7 +14,6 @@ const HOST: string = isDevMode() ? "//localhost:3000" : "";
  */
 export const ROLES = [
   "user",
-  "group_assist",
   "group_admin",
   "super_admin"
 ];

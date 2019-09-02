@@ -51,7 +51,8 @@ export class DashboardPage implements OnInit {
     }
 
     this.users[`${PREFIX}${i}`] = {
-      role: ROLES[0]
+      role: ROLES[0],
+      new_name: `${PREFIX}${i}`
     };
   }
 

@@ -13,7 +13,8 @@ app.use(express.json());
 app.use(cors());
 
 require("./api/auth.js")(app, __dirname, state);
-require("./api/user.js")(app, __dirname, state);
+require("./api/groups.js")(app, __dirname, state);
+require("./api/users.js")(app, __dirname, state);
 
 let server = http.listen(PORT, () => {
   const host = server.address().address;

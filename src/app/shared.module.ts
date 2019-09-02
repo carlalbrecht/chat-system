@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 
+import { InitialsPipe } from './pipes/initials.pipe.ts';
 import { StripSnakeCasePipe } from "./pipes/strip-snake-case.pipe";
 
 import { ModalDialogComponent } from "./components/modal-dialog/modal-dialog.component";
@@ -15,10 +16,12 @@ import { ModalDialogComponent } from "./components/modal-dialog/modal-dialog.com
     CommonModule
   ],
   declarations: [
+    InitialsPipe,
     StripSnakeCasePipe,
     ModalDialogComponent
   ],
   exports: [
+    InitialsPipe,
     StripSnakeCasePipe,
     ModalDialogComponent
   ]

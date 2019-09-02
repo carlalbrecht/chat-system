@@ -11,7 +11,6 @@ const OUTFILE = "data/state.json";
 
 const ROLES = [
   "user",
-  "group_assist",
   "group_admin",
   "super_admin"
 ];
@@ -22,10 +21,10 @@ const ROLES = [
  */
 const DEFAULTS = {
   users: {
-    "super": { role: "super_admin" }
+    "super": { role: "super_admin", email: "not@implemented.invalid" }
   },
 
-  groups: []
+  groups: {}
 }
 
 /**
@@ -33,7 +32,8 @@ const DEFAULTS = {
  * `createUser()`
  */
 const DEFAULT_USER_ATTRIBUTES = {
-  role: "user"
+  role: "user",
+  email: "not@implemented.invalid"
 };
 
 
@@ -48,6 +48,25 @@ function Result(success, reason) {
     success: success,
     reason: reason
   }
+}
+
+
+/**
+ * Generates a random string, containing {A-z, 0-9}
+ *
+ * Ripped from https://stackoverflow.com/a/1349426
+ *
+ * @param {*} length Number of characters to generate
+ * @returns A random string with `length` characters
+ */
+function makeid(length) {
+  var result = '';
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 }
 
 
@@ -152,9 +171,112 @@ module.exports = {
       this.sync();
 
       return true;
-    } catch {
+    } catch (err) {
+      console.error(err);
       return false;
     }
+  },
+
+
+  /**
+   * Creates a new group, and adds the creator to it.
+   *
+   * @param {string} name Group name
+   * @param {string} creator User that created the group
+   */
+  createGroup: function (name, creator) {
+    // Generate unique random ID
+    let id = makeid(8);
+    while (this.state.groups.hasOwnProperty(id)) {
+      id = makeid(8);
+    }
+
+    try {
+      this.state.groups[id] = {
+        name: name,
+        members: [creator],
+        assistants: [],
+        channels: {}
+      };
+
+      this.sync();
+
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
+
+
+  /**
+   * Returns an object containing the groups that the user is a member of.
+   *
+   * @param {string} username The username to use in membership queries
+   */
+  getMemberGroups: function (username) {
+    let memberGroups = {};
+    let user = this.getUser(username);
+
+    // Return nothing if the user doesn't exist
+    if (user === undefined) return {};
+    // Super admins are implicitly a member of all groups
+    if (user.role == "super_admin") return this.state.groups;
+
+    // Find all groups that `username` is a member of
+    for (let groupID of Object.keys(this.state.groups)) {
+      if (this.state.groups[groupID].members.includes(username)) {
+        memberGroups[groupID] = this.state.groups[groupID];
+      }
+    }
+
+    return memberGroups;
+  },
+
+
+  setAssistants: function (groupID, assistants) {
+    if (this.state.groups[groupID] === undefined) return false;
+
+    try {
+      this.state.groups[groupID].assistants = assistants;
+      this.sync();
+
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
+
+
+  createChannel: function (groupID, name) {
+    // We can only create channels for extant groups
+    if (this.state.groups[groupID] === undefined) return false;
+
+    // Generate unique random ID
+    let id = makeid(8);
+    while (this.state.groups[groupID].channels.hasOwnProperty(id)) {
+      id = makeid(8);
+    }
+
+    try {
+      this.state.groups[groupID].channels[id] = {
+        name: name,
+        members: this.state.groups[groupID].members
+      };
+
+      this.sync();
+
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  },
+
+
+  getChannels: function (groupID) {
+    return this.state.groups[groupID].channels;
   }
 
 }

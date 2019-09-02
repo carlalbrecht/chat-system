@@ -1,6 +1,11 @@
 $accent-fg: #A537FD;
 
 
+.invisible {
+  visibility: hidden;
+}
+
+
 #root {
   width: 100%;
   height: 100%;
@@ -21,20 +26,32 @@ $accent-fg: #A537FD;
     width: calc(100% - 30px);
     padding-top: calc(100% - 30px);
 
+    background: #FFF;
+
     border-radius: 100%;
     cursor: pointer;
 
     position: relative;
 
+    &.selected {
+      position: relative;
+      top: -2px;
+      left: -2px;
+
+      border: 2px solid #A537FD;
+    }
+
+    & > * {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
     &#new-group {
       background: $accent-fg;
 
       img {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-
         filter: invert(100%) brightness(200%);
       }
     }
@@ -72,6 +89,54 @@ $accent-fg: #A537FD;
 
   #channel-list {
     flex-grow: 1;
+
+    .channel-selector {
+      display: flex;
+      align-items: center;
+
+      padding-left: 10px;
+      margin: 0 10px;
+      margin-bottom: 5px;
+
+      border-radius: 5px;
+      cursor: pointer;
+
+      &:first-child {
+        margin-top: 10px;
+      }
+
+      &:last-child {
+        margin-bottom: 10px;
+      }
+
+      &.selected {
+        background-color: #E0E0E0;
+        cursor: default;
+
+        &:hover {
+          background-color: #E0E0E0;
+        }
+      }
+
+      &:hover {
+        background-color: #D0D0D0;
+      }
+
+      img:first-child {
+        margin-right: 10px;
+      }
+
+      span {
+        flex-grow: 1;
+
+        font-family: "Noto Sans Bold";
+        color: #555;
+      }
+
+      .image-button {
+        z-index: 500;
+      }
+    }
   }
 
   #user-info-box {
@@ -168,6 +233,29 @@ $accent-fg: #A537FD;
       border-radius: 10px;
     }
   }
+
+  .user-selector {
+    display: flex;
+    align-items: center;
+
+    padding-left: 10px;
+    margin: 0 10px;
+    margin-bottom: 5px;
+
+    border-radius: 5px;
+
+    &:first-child {
+      margin-top: 10px;
+    }
+
+    &:last-child {
+      margin-bottom: 10px;
+    }
+
+    span {
+      flex-grow: 1;
+    }
+  }
 }
 
 
@@ -179,6 +267,16 @@ $accent-fg: #A537FD;
 
   display: flex;
   flex-direction: column;
+
+  h3 {
+    margin-left: 1em;
+  }
+
+  &.assistant {
+    span {
+      color: #f15a22;
+    }
+  }
 }
 
 
@@ -213,7 +311,11 @@ modal-dialog {
   }
 
   button.primary-action {
-    background-color: $accent-fg;
+    background: $accent-fg;
     color: #FFF;
+
+    &:hover {
+      background: #8c14fc !important;
+    }
   }
 }

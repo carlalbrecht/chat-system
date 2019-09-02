@@ -35,7 +35,7 @@ html, body {
 
 #root {
   filter: blur(0px);
-  transition: filter 0.25s ease-out;
+  transition: filter 0.15s ease-out;
 }
 
 
@@ -52,6 +52,13 @@ html, body {
 
   border-radius: 5px;
   cursor: pointer;
+
+  &.clear {
+    &:hover {
+      background: transparent !important;
+      filter: brightness(50%);
+    }
+  }
 
   &:hover {
     background: #DDD;
