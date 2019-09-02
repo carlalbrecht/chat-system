@@ -1,6 +1,6 @@
 <div id="root">
   <div id="group-list">
-    <div class="group-icon" id="new-group" *ngIf="user.hasPermission('group_admin')">
+    <div class="group-icon" id="new-group" (click)="addGroup()" *ngIf="user.hasPermission('group_admin')">
       <img src="/assets/icons/plus.svg">
     </div>
   </div>
@@ -62,8 +62,28 @@
   </div>
 </div>
 
+
+<modal-dialog id="modal-create-group">
+  <h1>Create Group</h1>
+  <form (onsubmit)="doAddGroup()">
+    <input name="name" type="text" [(ngModel)]="newGroupName" placeholder="Group Name" />
+
+    <div class="action-row">
+      <button (click)="cancelAddGroup()">Cancel</button>
+      <button class="primary-action" (click)="doAddGroup()">Create</button>
+    </div>
+  </form>
+</modal-dialog>
+
+
 <modal-dialog id="modal-create-channel">
   <h1>Create Channel</h1>
-  <input type="text" [(ngModel)]="newChannelName" />
-  <button>Create</button>
+  <form (onsubmit)="doAddChannel()">
+    <input name="name" type="text" [(ngModel)]="newChannelName" placeholder="channel-name" />
+
+    <div class="action-row">
+      <button (click)="cancelAddChannel()">Cancel</button>
+      <button class="primary-action" (click)="doAddChannel()">Create</button>
+    </div>
+  </form>
 </modal-dialog>

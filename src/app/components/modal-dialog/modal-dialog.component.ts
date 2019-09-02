@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, OnDestroy, Input } from "@angular/core";
+import { Component, ElementRef, OnInit, OnDestroy, Input, HostListener } from "@angular/core";
 
 import { ModalService } from "src/app/services/modal.service";
 
@@ -51,6 +51,7 @@ export class ModalDialogComponent implements OnInit, OnDestroy {
   }
 
 
+  @HostListener("document:keydown.escape")
   public close() {
     this.element.style.display = "none";
 

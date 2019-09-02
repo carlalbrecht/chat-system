@@ -19,22 +19,6 @@
 }
 
 
-.action-row {
-  width: 100%;
-  margin: 1em 0;
-
-  text-align: right;
-
-  & button {
-    margin-right: 10px;
-
-    &:last-child {
-      margin-right: 0;
-    }
-  }
-}
-
-
 table {
   width: 100%;
   border-collapse: collapse;

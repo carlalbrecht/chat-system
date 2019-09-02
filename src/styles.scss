@@ -67,6 +67,22 @@ html, body {
 }
 
 
+.action-row {
+  width: 100%;
+  margin: 1em 0;
+
+  text-align: right;
+
+  & button {
+    margin-right: 10px;
+
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+
 button {
   padding: 10px 20px;
   border: none;
