@@ -49,4 +49,10 @@ module.exports = (app, path, state) => {
       .then(() => response.json({ success: true }))
       .catch(() => response.json({ success: false }));
   });
+
+  app.get("/api/groups/:groupID/channels/:channelID/history", (request, response) => {
+    state.getPostHistory(request.params.groupID, request.params.channelID)
+      .then(data => response.json(data))
+      .catch(() => response.json([]));
+  })
 };

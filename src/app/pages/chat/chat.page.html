@@ -94,26 +94,53 @@
 
       <div id="user-list">
         <ng-container *ngIf="currentChannel !== undefined">
-          <h3>Offline &ndash; {{ channelList[currentChannel].members.length }}</h3>
+          <h3>Online &ndash; {{ online.length }}</h3>
 
-          <div class="user-selector" *ngFor="let member of channelList[currentChannel].members">
-            <span [class.assistant]="isAssistant(member)">{{ member }}</span>
+          <!-- Online user list -->
+          <ng-container *ngFor="let member of channelList[currentChannel].members">
+            <div class="user-selector" *ngIf="online.includes(member)">
+              <span [class.assistant]="isAssistant(member)">{{ member }}</span>
 
-            <ng-container *ngIf="user.hasPermission('group_admin')">
-              <div class="image-button clear" (click)="removeAssistant(member)" *ngIf="isAssistant(member)">
-                <img src="/assets/icons/shield-remove.svg">
+              <ng-container *ngIf="user.hasPermission('group_admin')">
+                <div class="image-button clear" (click)="removeAssistant(member)" *ngIf="isAssistant(member)">
+                  <img src="/assets/icons/shield-remove.svg">
+                </div>
+
+                <div class="image-button clear" (click)="addAssistant(member)" *ngIf="!isAssistant(member)">
+                  <img src="/assets/icons/shield-plus.svg">
+                </div>
+              </ng-container>
+
+              <div class="image-button clear" [class.invisible]="!user.hasPermission('group_admin') && !isAssistant()"
+                (click)="removeUser(member)">
+                <img src="/assets/icons/cross.svg">
               </div>
-
-              <div class="image-button clear" (click)="addAssistant(member)" *ngIf="!isAssistant(member)">
-                <img src="/assets/icons/shield-plus.svg">
-              </div>
-            </ng-container>
-
-            <div class="image-button clear" [class.invisible]="!user.hasPermission('group_admin') && !isAssistant()"
-              (click)="removeUser(member)">
-              <img src="/assets/icons/cross.svg">
             </div>
-          </div>
+          </ng-container>
+
+          <h3>Offline &ndash; {{ channelList[currentChannel].members.length - online.length }}</h3>
+
+          <!-- Offline user list -->
+          <ng-container *ngFor="let member of channelList[currentChannel].members">
+            <div class="user-selector" *ngIf="!online.includes(member)">
+              <span [class.assistant]="isAssistant(member)">{{ member }}</span>
+
+              <ng-container *ngIf="user.hasPermission('group_admin')">
+                <div class="image-button clear" (click)="removeAssistant(member)" *ngIf="isAssistant(member)">
+                  <img src="/assets/icons/shield-remove.svg">
+                </div>
+
+                <div class="image-button clear" (click)="addAssistant(member)" *ngIf="!isAssistant(member)">
+                  <img src="/assets/icons/shield-plus.svg">
+                </div>
+              </ng-container>
+
+              <div class="image-button clear" [class.invisible]="!user.hasPermission('group_admin') && !isAssistant()"
+                (click)="removeUser(member)">
+                <img src="/assets/icons/cross.svg">
+              </div>
+            </div>
+          </ng-container>
         </ng-container>
       </div>
     </div>

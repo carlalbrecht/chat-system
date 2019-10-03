@@ -50,6 +50,8 @@ export class ChatService {
 
   private socket;
 
+  private notifying = false;
+
 
   constructor(
     private http: HttpClient,
@@ -79,6 +81,13 @@ export class ChatService {
   }
 
 
+  public async loadChannelHistory(): Promise<ChatEvent[]> {
+    return await this.http.get<ChatEvent[]>(
+      `${this.HOST}/api/groups/${this.currentGroup}/channels/${this.currentChannel}/history`)
+      .toPromise();
+  }
+
+
   public changeChannel(groupID: string, channelID: string) {
     if (this.currentGroup !== undefined && this.currentChannel !== undefined) {
       // Notify current channel that we're leaving, if we're already in one
@@ -86,7 +95,7 @@ export class ChatService {
         name: this.user.name,
         group: this.currentGroup,
         channel: this.currentChannel,
-        direction: "leaving"
+        direction: ChannelChangeDirection.Leaving
       });
     }
 
@@ -98,8 +107,20 @@ export class ChatService {
       name: this.user.name,
       group: this.currentGroup,
       channel: this.currentChannel,
-      direction: ChannelChangeDirection.Leaving
+      direction: ChannelChangeDirection.Joining
     });
+
+    if (!this.notifying) {
+      setInterval(() => {
+        // Notify new channel that we're still here
+        this.socket.emit("channel change", {
+          name: this.user.name,
+          group: this.currentGroup,
+          channel: this.currentChannel,
+          direction: ChannelChangeDirection.Joining
+        });
+      }, 1000);
+    }
   }
 
 

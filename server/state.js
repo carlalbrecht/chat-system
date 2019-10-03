@@ -528,6 +528,23 @@ module.exports = {
         }
       })
     });
+  },
+
+
+  getPostHistory: function (groupID, channelID) {
+    if (this.db === null) throw new Error("init() must be called first");
+
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("messages");
+
+      collection.find({ group: groupID, channel: channelID }).toArray((err, docs) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(docs);
+        }
+      })
+    });
   }
 
 }

@@ -39,8 +39,6 @@ export class ChatItemComponent implements OnInit {
 
       ChatItemComponent.profileCache[this.chatEvent.from] =
         mediaID === null ? "/assets/icons/account.svg" : `${this.ROOT}/media/${mediaID}`;
-
-      console.log(ChatItemComponent.profileCache);
     }
   }
 

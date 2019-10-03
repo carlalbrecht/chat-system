@@ -28,6 +28,8 @@ export class ChatPage implements OnInit {
   public chatEvents: ChatEvent[] = [];
   public messageText: string = "";
 
+  public online: string[] = [];
+
 
   /**
    * Function re-export to allow iterating objects from inside template.
@@ -65,6 +67,9 @@ export class ChatPage implements OnInit {
       this.currentChannel = params.channel;
 
       this.chat.changeChannel(this.currentGroup, this.currentChannel);
+      this.chat.loadChannelHistory().then(history => {
+        this.chatEvents = history;
+      })
     });
   }
 
@@ -77,8 +82,21 @@ export class ChatPage implements OnInit {
     }
 
     this.chat.events().subscribe(event => {
-      console.log(event);
+      // Add new messages to our list to display
       this.chatEvents.push(event);
+    });
+
+    this.chat.channelChanges().subscribe(event => {
+      // Keep track of users coming and going
+      if (event.group === this.currentGroup && event.channel === this.currentChannel) {
+        if (event.direction === "joining") {
+          if (!this.online.includes(event.name)) {
+            this.online.push(event.name);
+          }
+        } else if (event.direction === "leaving") {
+          this.online = this.online.filter(x => x !== event.name);
+        }
+      }
     });
   }
 
@@ -100,16 +118,22 @@ export class ChatPage implements OnInit {
 
 
   public selectGroup(groupID: string) {
+    this.chatEvents = [];
+    this.online = [];
+
     this.router.navigate([`/chat/${groupID}`]);
   }
 
 
-  public selectChannel(channelID: string, groupID: string = this.currentGroup) {
-    this.router.navigate([`/chat/${groupID}/${channelID}`]);
+  public async selectChannel(channelID: string, groupID: string = this.currentGroup) {
+    this.chatEvents = [];
+    this.online = [];
+    this.messageText = "";
 
+    this.router.navigate([`/chat/${groupID}/${channelID}`]);
     this.chat.changeChannel(groupID, channelID);
 
-    this.messageText = "";
+    this.chatEvents = await this.chat.loadChannelHistory();
   }
 
 

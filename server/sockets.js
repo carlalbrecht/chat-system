@@ -12,7 +12,7 @@ module.exports = {
         console.log(`Socket disconnected (#${socket.id} on port ${port})`);
 
         // Only notify on disconnect if the user entered a room to begin with
-        if (username !== null || currentGroup !== null || currentChannel !== null) {
+        if (username === null || currentGroup === null || currentChannel === null) {
           return;
         }
 
@@ -30,12 +30,22 @@ module.exports = {
         io.emit("chat event", message);
 
         // Log message in database
-        state.logMessage(message);
+        state.logMessage({
+          group: currentGroup,
+          channel: currentChannel,
+          ...message
+        });
       });
 
       socket.on("channel change", message => {
         // Broadcast channel changes, but do not store them permanently
         io.emit("channel change", message);
+
+        if (message.direction == "joining") {
+          username = message.name;
+          currentGroup = message.group;
+          currentChannel = message.channel;
+        }
       });
     });
   }
