@@ -60,7 +60,7 @@ export class GroupsService {
   }
 
 
-  public async removeGroup(groupID: string) {
+  public async removeGroup(groupID: string): Promise<boolean> {
     interface Response {
       success: boolean;
     }

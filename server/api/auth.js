@@ -4,8 +4,16 @@
  */
 module.exports = (app, path, state) => {
   app.post("/api/auth", (request, response) => {
-    response.json({
-      authenticated: state.getUser(request.body["username"]) !== undefined
+    state.getUser(request.body["username"]).then(user => {
+      if (user === undefined) {
+        // User does not exist
+        response.json({ authenticated: false });
+      } else {
+        // User exists - check password
+        response.json({
+          authenticated: request.body["password"] === user.password
+        });
+      }
     });
   })
 };

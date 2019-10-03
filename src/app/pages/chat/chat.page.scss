@@ -283,7 +283,7 @@ modal-dialog {
     margin-top: 0;
   }
 
-  input {
+  input[type=text] {
     width: 500px;
 
     padding: 10px;
@@ -308,7 +308,7 @@ modal-dialog {
     margin-bottom: 0;
   }
 
-  button.primary-action {
+  input[type=submit].primary-action {
     background: $accent-fg;
     color: #FFF;
 

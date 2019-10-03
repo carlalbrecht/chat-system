@@ -3,42 +3,50 @@
  */
 module.exports = (app, path, state) => {
   app.post("/api/groups/create", (request, response) => {
-    response.json({ success: state.createGroup(request.body["name"], request.body["creator"]) });
+    state.createGroup(request.body["name"], request.body["creator"])
+      .then(() => response.json({ success: true }))
+      .catch(() => response.json({ success: false }));
   });
 
   app.delete("/api/groups/:groupID", (request, response) => {
-    response.json({ success: state.removeGroup(request.params.groupID) });
-  })
+    state.removeGroup(request.params.groupID)
+      .then(() => response.json({ success: true }))
+      .catch(() => response.json({ success: false }));
+  });
 
   app.get("/api/groups/:groupID/channels", (request, response) => {
-    response.json(state.getChannels(request.params.groupID));
-  })
+    state.getChannels(request.params.groupID)
+      .then(data => response.json(data))
+      .catch(() => response.json({ success: false }));
+  });
 
   app.post("/api/groups/:groupID/assistants", (request, response) => {
-    response.json({ success: state.setAssistants(request.params.groupID, request.body["assistants"]) });
-  })
+    state.setAssistants(request.params.groupID, request.body["assistants"])
+      .then(() => response.json({ success: true }))
+      .catch(() => response.json({ success: false }));
+  });
 
   app.post("/api/groups/:groupID/channels/create", (request, response) => {
-    response.json({ success: state.createChannel(request.params.groupID, request.body["name"]) });
-  })
+    state.createChannel(request.params.groupID, request.body["name"])
+      .then(() => response.json({ success: true }))
+      .catch(() => response.json({ success: false }));
+  });
 
   app.delete("/api/groups/:groupID/channels/:channelID", (request, response) => {
-    response.json({ success: state.removeChannel(request.params.groupID, request.params.channelID) });
-  })
+    state.removeChannel(request.params.groupID, request.params.channelID)
+      .then(() => response.json({ success: true }))
+      .catch(() => response.json({ success: false }));
+  });
 
   app.post("/api/groups/:groupID/channels/:channelID/adduser", (request, response) => {
-    response.json({
-      success: state.addUserToChannel(
-        request.params.groupID, request.params.channelID, request.body["username"]
-      )
-    });
-  })
+    state.addUserToChannel(request.params.groupID, request.params.channelID, request.body["username"])
+      .then(() => response.json({ success: true }))
+      .catch(() => response.json({ success: false }));
+  });
 
   app.post("/api/groups/:groupID/channels/:channelID/removeuser", (request, response) => {
-    response.json({
-      success: state.removeUserFromChannel(
-        request.params.groupID, request.params.channelID, request.body["username"]
-      )
-    });
-  })
-}
+    state.removeUserFromChannel(request.params.groupID, request.params.channelID, request.body["username"])
+      .then(() => response.json({ success: true }))
+      .catch(() => response.json({ success: false }));
+  });
+};

@@ -52,6 +52,7 @@ export class DashboardPage implements OnInit {
 
     this.users[`${PREFIX}${i}`] = {
       role: ROLES[0],
+      password: "",
       new_name: `${PREFIX}${i}`
     };
   }

@@ -9,6 +9,7 @@
       <table>
         <tr>
           <th>Name</th>
+          <th>Password</th>
           <th>Role</th>
         </tr>
 
@@ -16,6 +17,10 @@
           <td class="expand" *ngIf="key == 'super'">{{ key }}</td>
           <td class="expand" *ngIf="key != 'super'">
             <input type="text" [(ngModel)]="users[key].new_name" />
+          </td>
+
+          <td class="expand">
+            <input type="password" [(ngModel)]="users[key].password" />
           </td>
 
           <td>

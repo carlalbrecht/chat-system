@@ -2,11 +2,23 @@
  * Hacked file-based persistence. This thing is totally web-scale and makes
  * Google's devs look like amateurs.
  */
+const { MongoClient, ObjectID } = require("mongodb");
+
 const fs = require("fs");
 const path = require("path");
 
 
 const OUTFILE = "data/state.json";
+
+
+const DB_URL = "mongodb://localhost:27017";
+const DB_NAME = "chat_system";
+
+const DB_OPTIONS = {
+  poolSize: 10,
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+};
 
 
 const ROLES = [
@@ -17,21 +29,11 @@ const ROLES = [
 
 
 /**
- * Default state to load if we don't have a saved state yet.
- */
-const DEFAULTS = {
-  users: {
-    "super": { role: "super_admin", email: "not@implemented.invalid" }
-  },
-
-  groups: {}
-}
-
-/**
  * Default attributes for new users. Individual attributes can be overridden in
  * `createUser()`
  */
 const DEFAULT_USER_ATTRIBUTES = {
+  password: "password",
   role: "user",
   email: "not@implemented.invalid"
 };
@@ -73,43 +75,36 @@ function makeid(length) {
 module.exports = {
 
   /**
-   * The current state of the program. This is set by `init()` to contain either
-   * the deserialised contents of `OUTFILE`, or set to `DEFAULTS`, if `OUTFILE`
-   * does not exist.
+   * MongoDB database handle. Set by `init()` once the server is connected.
    */
-  state: undefined,
+  db: null,
 
 
   /**
-   * Loads persistent state from `OUTFILE` if it exists. If it does not,
-   * `DEFAULTS` is loaded, then immediately saved by calling `sync()`.
+   * Opens a new MongoDB connection, and creates / opens our application
+   * database. This method must be called before any other.
+   *
+   * @returns {Promise} Promise object which is resolved once the database is open
    */
   init: function () {
-    if (fs.existsSync(OUTFILE)) {
-      console.log("Reloading ${OUTFILE}");
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(DB_URL, DB_OPTIONS, (err, client) => {
+        if (err) {
+          reject(err);
+        } else {
+          this.db = client.db(DB_NAME);
 
-      this.state = JSON.parse(fs.readFileSync(OUTFILE, { encoding: "utf-8" }));
-    } else {
-      console.log("Creating new state with defaults");
+          // Create default user, if it does not already exist
+          this.createUser("super", {
+            role: "super_admin",
+            password: "super",
+            email: "not@implemented.invalid"
+          });
 
-      this.state = DEFAULTS;
-      fs.mkdirSync(path.dirname(OUTFILE), { recursive: true });
-      this.sync();
-    }
-  },
-
-
-  /**
-   * Writes the current `state` to `OUTFILE`.
-   */
-  sync: function () {
-    if (this.state === undefined) throw new Error("init() must be called first");
-
-    fs.writeFile(OUTFILE, JSON.stringify(this.state), err => {
-      if (err) throw err;
-
-      console.log(`Saved current state to ${OUTFILE}`);
-    })
+          resolve();
+        }
+      })
+    });
   },
 
 
@@ -118,26 +113,37 @@ module.exports = {
    *
    * @param {string} name - Unique username to create attributes for.
    * @param {Object} attributes - Overrides for `DEFAULT_USER_ATTRIBUTES`.
-   * @returns {Result} API response for user creation attempts.
+   * @returns {Promise} API `Result` response for user creation attempts.
    */
   createUser: function (name, attributes) {
-    if (this.state === undefined) throw new Error("init() must be called first");
+    if (this.db === null) throw new Error("init() must be called first");
 
-    if (name in this.state.users) {
-      return { success: false, reason: "User already exists" };
-    } else {
-      // Create attributes object with overridden defaults from `attributes`
-      let merged_attributes = { ...DEFAULT_USER_ATTRIBUTES };
-      Object.keys(merged_attributes).forEach(key => {
-        if (key in attributes) {
-          merged_attributes[key] = attributes[key];
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("users");
+
+      collection.find({ name: name }).count((err, count) => {
+        if (err) {
+          reject(err);
+        } else if (count > 0) {
+          resolve({ success: false, reason: "User already exists" });
+        } else {
+          let merged_attributes = { ...DEFAULT_USER_ATTRIBUTES };
+          Object.keys(merged_attributes).forEach(key => {
+            if (key in attributes) {
+              merged_attributes[key] = attributes[key];
+            }
+          });
+
+          collection.insertOne({ name: name, ...merged_attributes }, (err, response) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve({ succes: true });
+            }
+          })
         }
       });
-
-      this.state.users[name] = merged_attributes;
-      this.sync();
-      return { success: true };
-    }
+    });
   },
 
 
@@ -148,7 +154,19 @@ module.exports = {
    * @returns {(Object|undefined)} User attributes, if the user exists
    */
   getUser: function (name) {
-    return this.state.users[name];
+    if (this.db === null) throw new Error("init() must be called first");
+
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("users");
+
+      collection.find({ name: name }).limit(1).toArray((err, docs) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(docs.length == 0 ? undefined : docs[0]);
+        }
+      })
+    });
   },
 
 
@@ -158,7 +176,26 @@ module.exports = {
    * @returns {Object} Relational mapping between usernames and attributes
    */
   getUserList: function () {
-    return this.state.users;
+    if (this.db === null) throw new Error("init() must be called first");
+
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("users");
+
+      collection.find({}).toArray((err, docs) => {
+        if (err) {
+          reject(err);
+        } else {
+          // Convert to old key-associative object format
+          let userList = {}
+
+          for (let doc of docs) {
+            userList[doc.name] = doc;
+          }
+
+          resolve(userList);
+        }
+      })
+    });
   },
 
 
@@ -168,15 +205,37 @@ module.exports = {
    * @param {Object} list List of users, in the same format as `getUserList()`
    */
   setUserList: function (list) {
-    try {
-      this.state.users = list;
-      this.sync();
+    let userList = [];
 
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
+    // Convert to mongodb format
+    Object.keys(list).forEach(key => {
+      delete list[key]._id;
+      userList.push({ name: key, ...list[key] });
+    });
+
+    // Write new list to temporary collection
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("new_users");
+
+      collection.insertMany(userList, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          // Swap old and new collections
+          this.db.collection("users").rename("old_users", err => {
+            if (err) reject(err); else collection.rename("users", err => {
+              if (err) reject(err); else this.db.collection("old_users").drop((err) => {
+                if (err) {
+                  reject(err);
+                } else {
+                  resolve();
+                }
+              })
+            });
+          });
+        }
+      });
+    });
   },
 
 
@@ -187,40 +246,63 @@ module.exports = {
    * @param {string} creator User that created the group
    */
   createGroup: function (name, creator) {
-    // Generate unique random ID
-    let id = makeid(8);
-    while (this.state.groups.hasOwnProperty(id)) {
-      id = makeid(8);
-    }
+    if (this.db === null) throw new Error("init() must be called first");
 
-    try {
-      this.state.groups[id] = {
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("groups");
+
+      // Generate unique random ID
+      const id = makeid(8);
+
+      collection.insertOne({
+        id: id,
         name: name,
         members: [creator],
-        assistants: [],
-        channels: {}
-      };
+        assistants: []
+      }, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  },
 
-      this.sync();
 
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
+  getGroup: function (groupID) {
+    if (this.db === null) throw new Error("init() must be called first");
+
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("groups");
+
+      collection.find({ id: groupID }).limit(1).toArray((err, docs) => {
+        if (err) {
+          reject(err);
+        } else if (docs !== undefined && docs.length > 0) {
+          resolve(docs[0]);
+        } else {
+          resolve({});
+        }
+      });
+    });
   },
 
 
   removeGroup: function (groupID) {
-    try {
-      delete this.state.groups[groupID];
-      this.sync();
+    if (this.db === null) throw new Error("init() must be called first");
 
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("groups");
+
+      collection.deleteOne({ id: groupID }, (err, docs) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      })
+    });
   },
 
 
@@ -230,142 +312,168 @@ module.exports = {
    * @param {string} username The username to use in membership queries
    */
   getMemberGroups: function (username) {
-    let memberGroups = {};
-    let user = this.getUser(username);
+    if (this.db === null) throw new Error("init() must be called first");
 
-    // Return nothing if the user doesn't exist
-    if (user === undefined) return {};
-    // Super admins are implicitly a member of all groups
-    if (user.role == "super_admin") return this.state.groups;
+    return new Promise((resolve, reject) => {
+      this.getUser(username).then(user => {
+        const collection = this.db.collection("groups");
 
-    // Find all groups that `username` is a member of
-    for (let groupID of Object.keys(this.state.groups)) {
-      if (this.state.groups[groupID].members.includes(username)) {
-        memberGroups[groupID] = this.state.groups[groupID];
-      }
-    }
+        // Super admins are implicitly a member of all groups
+        const filter = user.role == "super_admin" ? {} : { members: username };
 
-    return memberGroups;
+        collection.find(filter).toArray((err, docs) => {
+          if (err) {
+            reject(err)
+          } else {
+            // Convert to old key-associative object format
+            let memberGroups = {}
+
+            for (let doc of docs) {
+              memberGroups[doc.id] = doc;
+            }
+
+            resolve(memberGroups);
+          }
+        })
+      }).catch(err => reject(err));
+    });
   },
 
 
   setAssistants: function (groupID, assistants) {
-    if (this.state.groups[groupID] === undefined) return false;
+    if (this.db === null) throw new Error("init() must be called first");
 
-    try {
-      this.state.groups[groupID].assistants = assistants;
-      this.sync();
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("groups");
 
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
+      collection.updateOne({ id: groupID }, {
+        assistants: assistants
+      }, () => {
+        resolve();
+      });
+    });
   },
 
 
   createChannel: function (groupID, name) {
-    // We can only create channels for extant groups
-    if (this.state.groups[groupID] === undefined) return false;
+    if (this.db === null) throw new Error("init() must be called first");
 
-    // Generate unique random ID
-    let id = makeid(8);
-    while (this.state.groups[groupID].channels.hasOwnProperty(id)) {
-      id = makeid(8);
-    }
+    return new Promise((resolve, reject) => {
+      this.getGroup(groupID).then(group => {
+        const collection = this.db.collection("channels");
 
-    try {
-      this.state.groups[groupID].channels[id] = {
-        name: name,
-        members: this.state.groups[groupID].members
-      };
+        // Generate unique random ID
+        const id = makeid(8);
 
-      this.sync();
-
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
+        collection.insertOne({
+          id: id,
+          groupId: groupID,
+          name: name,
+          members: group.members
+        }, (err, response) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve();
+          }
+        });
+      });
+    });
   },
 
 
   removeChannel: function (groupID, channelID) {
-    if (this.state.groups[groupID] === undefined) return false;
+    if (this.db === null) throw new Error("init() must be called first");
 
-    try {
-      let group = this.state.groups[groupID];
-      delete group.channels[channelID];
-      this.sync();
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("channels");
 
-      return true;
-    } catch (err) {
-      return false;
-    }
+      collection.deleteOne({ id: channelID }, (err, docs) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
   },
 
 
   getChannels: function (groupID) {
-    return this.state.groups[groupID].channels;
+    if (this.db === null) throw new Error("init() must be called first");
+
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("channels");
+
+      collection.find({ groupId: groupID }).toArray((err, docs) => {
+        if (err) {
+          reject(err);
+        } else {
+          // Convert to old key-associative object format
+          let channels = {}
+
+          for (let doc of docs) {
+            channels[doc.id] = doc;
+          }
+
+          resolve(channels);
+        }
+      })
+    });
   },
 
 
   addUserToChannel: function (groupID, channelID, username) {
-    if (this.state.groups[groupID] === undefined) return false;
-    let group = this.state.groups[groupID];
+    if (this.db === null) throw new Error("init() must be called first");
 
-    if (group.channels[channelID] === undefined) return false;
-    let channel = group.channels[channelID];
+    return new Promise((resolve, reject) => {
+      this.createUser(username, {}).then(() => {
+        // Add user to channel
+        const channels = this.db.collection("channels");
 
-    try {
-      this.createUser(username, {});
+        channels.updateOne({ id: channelID, groupId: groupID }, {
+          $addToSet: { "members": username }
+        }, () => {
+          // Add user to group
+          const groups = this.db.collection("groups");
 
-      if (!channel.members.includes(username)) {
-        channel.members.push(username);
-      }
-
-      if (!group.members.includes(username)) {
-        group.members.push(username);
-      }
-
-      this.sync();
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
+          groups.updateOne({ id: groupID }, {
+            $addToSet: { "members": username }
+          }, () => resolve());
+        });
+      });
+    });
   },
 
 
   removeUserFromChannel: function (groupID, channelID, username) {
-    if (this.state.groups[groupID] === undefined) return false;
-    let group = this.state.groups[groupID];
+    if (this.db === null) throw new Error("init() must be called first");
 
-    if (group.channels[channelID] === undefined) return false;
-    let channel = group.channels[channelID];
+    return new Promise((resolve, reject) => {
+      // Remove user from channel
+      const channels = this.db.collection("channels");
 
-    try {
-      channel.members = channel.members.filter(x => x !== username);
+      channels.updateOne({ id: channelID, groupId: groupID }, {
+        $pull: { "members": username }
+      }, () => {
+        // Remove user from group if no longer in any of the group's channels
+        channels.find({ members: username }).count((err, count) => {
+          if (err) {
+            reject(err);
+          } else if (count == 0) {
+            // Not in any of the group's channels
+            const groups = this.db.collection("groups");
 
-      let exists = false;
-      for (let id of Object.keys(group.channels)) {
-        if (group.channels[id].members.includes(username)) {
-          exists = true;
-          break;
-        }
-      }
-
-      if (!exists) {
-        // User can be completely removed from group
-        group.members = group.members.filter(x => x !== username);
-      }
-
-      this.sync();
-      return true;
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
+            groups.updateOne({ id: groupID }, {
+              $pull: { "members": username }
+            }, () => resolve());
+          } else {
+            // User is still in some of the group's channels
+            resolve();
+          }
+        })
+      });
+    });
   }
 
 }

@@ -3,18 +3,26 @@
  */
 module.exports = (app, path, state) => {
   app.get("/api/users/:userid/attributes", (request, response) => {
-    response.json(state.getUser(request.params.userid));
+    state.getUser(request.params.userid)
+      .then(resp => response.json(resp))
+      .catch(err => response.json({ error: err }));
   });
 
   app.get("/api/users/:userid/groups", (request, response) => {
-    response.json(state.getMemberGroups(request.params.userid));
+    state.getMemberGroups(request.params.userid)
+      .then(resp => response.json(resp))
+      .catch(err => response.json({ error: err }));
   })
 
   app.get("/api/users", (_, response) => {
-    response.json(state.getUserList());
+    state.getUserList()
+      .then(resp => response.json(resp))
+      .catch(err => response.json({ error: err }));
   })
 
   app.post("/api/users", (request, response) => {
-    response.json({ success: state.setUserList(request.body) });
+    state.setUserList(request.body)
+      .then(() => response.json({ success: true }))
+      .catch(err => response.json({ success: false, error: err }));
   })
 }

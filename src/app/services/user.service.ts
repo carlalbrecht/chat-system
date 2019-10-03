@@ -21,6 +21,7 @@ export const ROLES = [
 
 export interface UserAttributes {
   role: string;
+  password: string;
 }
 
 interface UserData {

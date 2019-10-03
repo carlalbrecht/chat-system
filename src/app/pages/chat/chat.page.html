@@ -29,13 +29,15 @@
       <ng-container *ngIf="currentGroup !== undefined">
         <div class="channel-selector" [class.selected]="currentChannel == channelID"
           *ngFor="let channelID of objectKeys(channelList)" (click)="selectChannel(channelID)">
-          <img src="/assets/icons/hash.svg">
-          <span>{{ channelList[channelID].name }}</span>
+          <ng-container *ngIf="inChannel(channelID)">
+            <img src="/assets/icons/hash.svg">
+            <span>{{ channelList[channelID].name }}</span>
 
-          <div class="image-button clear" (click)="deleteChannel(channelID)"
-            [class.invisible]="currentChannel != channelID || !user.hasPermission('group_admin')">
-            <img src="/assets/icons/cross.svg">
-          </div>
+            <div class="image-button clear" (click)="deleteChannel(channelID)"
+              [class.invisible]="currentChannel != channelID || !user.hasPermission('group_admin')">
+              <img src="/assets/icons/cross.svg">
+            </div>
+          </ng-container>
         </div>
       </ng-container>
     </div>
@@ -118,7 +120,7 @@
 
     <div class="action-row">
       <button (click)="cancelAddGroup()">Cancel</button>
-      <button class="primary-action" (click)="doAddGroup()">Create</button>
+      <input type="submit" class="primary-action" value="Create" />
     </div>
   </form>
 </modal-dialog>
@@ -131,7 +133,7 @@
 
     <div class="action-row">
       <button (click)="cancelAddChannel()">Cancel</button>
-      <button class="primary-action" (click)="doAddChannel()">Create</button>
+      <input type="submit" class="primary-action" value="Create" />
     </div>
   </form>
 </modal-dialog>
@@ -144,7 +146,7 @@
 
     <div class="action-row">
       <button (click)="cancelAddUser()">Cancel</button>
-      <button class="primary-action" (click)="doAddUser()">Add User</button>
+      <input type="submit" class="primary-action" value="Add User" />
     </div>
   </form>
 </modal-dialog>

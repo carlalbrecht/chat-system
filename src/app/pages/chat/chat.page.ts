@@ -21,8 +21,8 @@ export class ChatPage implements OnInit {
   public newChannelName: string = "";
   public newUserName: string = "";
 
-  public groupList: GroupList;
-  public channelList: ChannelList;
+  public groupList: GroupList = {};
+  public channelList: ChannelList = {};
 
 
   /**
@@ -71,6 +71,11 @@ export class ChatPage implements OnInit {
   }
 
 
+  public inChannel(channelID: string) {
+    return this.channelList[channelID].members.includes(this.user.name);
+  }
+
+
   public selectGroup(groupID: string) {
     this.router.navigate([`/chat/${groupID}`]);
   }
@@ -88,12 +93,16 @@ export class ChatPage implements OnInit {
 
 
   public addAssistant(name: string) {
+    if (this.groupList === {}) return;
+
     this.groupList[this.currentGroup].assistants.push(name);
     this.groups.setAssistants(this.currentGroup, this.groupList[this.currentGroup].assistants);
   }
 
 
   public removeAssistant(name: string) {
+    if (this.groupList === {}) return;
+
     this.groupList[this.currentGroup].assistants =
       this.groupList[this.currentGroup].assistants.filter(x => x !== name);
 
