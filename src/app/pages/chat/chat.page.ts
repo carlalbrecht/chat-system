@@ -5,6 +5,7 @@ import { UserService } from 'src/app/services/user.service';
 import { ModalService } from 'src/app/services/modal.service';
 import { GroupsService, GroupList } from 'src/app/services/groups.service';
 import { ChannelsService, ChannelList } from 'src/app/services/channels.service';
+import { ChatService } from 'src/app/services/chat.service';
 
 
 @Component({
@@ -24,6 +25,8 @@ export class ChatPage implements OnInit {
   public groupList: GroupList = {};
   public channelList: ChannelList = {};
 
+  public messageText: string = "";
+
 
   /**
    * Function re-export to allow iterating objects from inside template.
@@ -37,6 +40,7 @@ export class ChatPage implements OnInit {
     private modal: ModalService,
     private groups: GroupsService,
     private channels: ChannelsService,
+    private chat: ChatService,
     public user: UserService
   ) {
     route.params.subscribe(async params => {
@@ -58,6 +62,8 @@ export class ChatPage implements OnInit {
 
       this.currentGroup = params.group;
       this.currentChannel = params.channel;
+
+      this.chat.changeChannel(this.currentGroup, this.currentChannel);
     });
   }
 
@@ -76,6 +82,17 @@ export class ChatPage implements OnInit {
   }
 
 
+  public sendMessage() {
+    this.chat.sendMessage(this.messageText);
+    this.messageText = "";
+  }
+
+
+  public sendImage() {
+    this.chat.sendImage();
+  }
+
+
   public selectGroup(groupID: string) {
     this.router.navigate([`/chat/${groupID}`]);
   }
@@ -83,6 +100,10 @@ export class ChatPage implements OnInit {
 
   public selectChannel(channelID: string, groupID: string = this.currentGroup) {
     this.router.navigate([`/chat/${groupID}/${channelID}`]);
+
+    this.chat.changeChannel(groupID, channelID);
+
+    this.messageText = "";
   }
 
 

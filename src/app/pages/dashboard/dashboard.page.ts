@@ -1,7 +1,8 @@
-import { Component, OnInit, NgZone } from "@angular/core";
+import { Component, Inject, OnInit, NgZone } from "@angular/core";
 
 import { UserAttributes, UserService, ROLES } from "src/app/services/user.service";
 import { UserListService, UserRelationalMapping } from "src/app/services/user-list.service";
+import { MediaService } from 'src/app/services/media.service';
 
 
 interface RenamableUserAttributes extends UserAttributes {
@@ -31,13 +32,21 @@ export class DashboardPage implements OnInit {
 
   constructor(
     private zone: NgZone,
+    private userList: UserListService,
+    private media: MediaService,
     public user: UserService,
-    private userList: UserListService
+    @Inject("BASE_URL") private HOST: string,
   ) { }
 
 
   public async ngOnInit() {
     await this.reloadUsers();
+  }
+
+
+  public async uploadProfilePicture() {
+    const mediaID: string = await this.media.selectAndUploadImage();
+    this.user.setProfilePicture(mediaID);
   }
 
 

@@ -1,12 +1,5 @@
-import { Injectable, isDevMode } from "@angular/core";
+import { Injectable, Inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-
-
-/**
- * Use the local web server for development (i.e. when the web server and
- * `ng serve` are running separately).
- */
-const HOST: string = isDevMode() ? "//localhost:3000" : "";
 
 
 /**
@@ -22,6 +15,7 @@ export const ROLES = [
 export interface UserAttributes {
   role: string;
   password: string;
+  profile?: string;
 }
 
 interface UserData {
@@ -43,6 +37,18 @@ export class UserService {
   private attributePollingTask: ReturnType<typeof setInterval>;
 
 
+  private profileUrlValue = "/assets/icons/account.svg";
+  private profileUrlChanged: boolean = false;
+
+  public get profileUrl(): string {
+    return this.profileUrlValue;
+  }
+
+  public get profileUrlIsCustom(): boolean {
+    return this.profileUrlChanged;
+  }
+
+
   public get authenticated(): boolean {
     return this.userdata.username !== null;
   }
@@ -60,7 +66,10 @@ export class UserService {
   }
 
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    @Inject("BASE_URL") private HOST: string
+  ) {
     // Request user attributes from server again if we are already logged in
     if (this.userdata.username !== null) {
       this.getUserAttributes();
@@ -77,7 +86,7 @@ export class UserService {
 
     try {
       // Submit authentication request
-      let response = await this.http.post<Response>(`${HOST}/api/auth`, {
+      let response = await this.http.post<Response>(`${this.HOST}/api/auth`, {
         username: username,
         password: password
       }).toPromise();
@@ -134,12 +143,31 @@ export class UserService {
   }
 
 
+  public async setProfilePicture(imageID: string) {
+    this.profileUrlValue = `${this.HOST}/media/${imageID}`;
+    this.profileUrlChanged = true;
+
+    await this.http.post<any>(
+      `${this.HOST}/api/users/${this.userdata.username}/profile`,
+      { media_id: imageID }
+    ).toPromise();
+  }
+
+
   private async getUserAttributes() {
     try {
       // Submit attributes request
       this.userdata.attributes = await this.http.get<UserAttributes>(
-        `${HOST}/api/users/${this.userdata.username}/attributes`
+        `${this.HOST}/api/users/${this.userdata.username}/attributes`
       ).toPromise();
+
+      if (this.userdata.attributes.hasOwnProperty("profile")) {
+        // User already has a profile picture set
+        const imageID = this.userdata.attributes.profile;
+
+        this.profileUrlValue = `${this.HOST}/media/${imageID}`;
+        this.profileUrlChanged = true;
+      }
     } catch (resp) {
       return false;
     }

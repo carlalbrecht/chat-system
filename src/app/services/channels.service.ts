@@ -1,14 +1,7 @@
-import { Injectable, isDevMode } from "@angular/core";
+import { Injectable, Inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 
 import { UserService } from './user.service';
-
-
-/**
- * Use the local web server for development (i.e. when the web server and
- * `ng serve` are running separately).
- */
-const HOST: string = isDevMode() ? "//localhost:3000" : "";
 
 
 export interface Channel {
@@ -30,14 +23,15 @@ export class ChannelsService {
 
   constructor(
     private http: HttpClient,
-    private user: UserService
+    private user: UserService,
+    @Inject("BASE_URL") private HOST: string
   ) { }
 
 
   public async getChannels(groupID: string): Promise<ChannelList> {
     try {
       return await
-        this.http.get<ChannelList>(`${HOST}/api/groups/${groupID}/channels`).toPromise();
+        this.http.get<ChannelList>(`${this.HOST}/api/groups/${groupID}/channels`).toPromise();
     } catch {
       return {};
     }
@@ -50,7 +44,7 @@ export class ChannelsService {
     }
 
     try {
-      return (await this.http.post<Response>(`${HOST}/api/groups/${groupID}/channels/create`, {
+      return (await this.http.post<Response>(`${this.HOST}/api/groups/${groupID}/channels/create`, {
         name: name
       }).toPromise()).success;
     } catch {
@@ -66,7 +60,7 @@ export class ChannelsService {
 
     try {
       return (await this.http.delete<Response>(
-        `${HOST}/api/groups/${groupID}/channels/${channelID}`
+        `${this.HOST}/api/groups/${groupID}/channels/${channelID}`
       ).toPromise()).success;
     } catch {
       return false;
@@ -81,9 +75,9 @@ export class ChannelsService {
 
     try {
       return (await this.http.post<Response>(
-        `${HOST}/api/groups/${groupID}/channels/${channelID}/adduser`, {
-          username: username
-        }
+        `${this.HOST}/api/groups/${groupID}/channels/${channelID}/adduser`, {
+        username: username
+      }
       ).toPromise()).success;
     } catch {
       return false;
@@ -98,9 +92,9 @@ export class ChannelsService {
 
     try {
       return (await this.http.post<Response>(
-        `${HOST}/api/groups/${groupID}/channels/${channelID}/removeuser`, {
-          username: username
-        }
+        `${this.HOST}/api/groups/${groupID}/channels/${channelID}/removeuser`, {
+        username: username
+      }
       ).toPromise()).success;
     } catch {
       return false;

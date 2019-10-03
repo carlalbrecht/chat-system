@@ -43,7 +43,7 @@
     </div>
 
     <div id="user-info-box">
-      <img src="/assets/icons/account.svg">
+      <img id="user-profile-picture" [src]="user.profileUrl">
       <span id="username">{{ user.name }}</span>
 
       <div class="image-button" (click)="dashboard()">
@@ -79,8 +79,14 @@
         </div>
 
         <div id="chatbox-container">
-          <input type="text" id="chatbox"
-            [placeholder]="currentChannel !== undefined ? 'Message #' + channelList[currentChannel].name : ''" />
+          <form (ngSubmit)="sendMessage()">
+            <input type="text" id="chatbox" [(ngModel)]="messageText" name="message"
+              [placeholder]="currentChannel !== undefined ? 'Message #' + channelList[currentChannel].name : ''" />
+
+            <div class="image-button" id="image-post-button" (click)="sendImage()">
+              <img src="/assets/icons/message-image.svg">
+            </div>
+          </form>
         </div>
       </div>
 

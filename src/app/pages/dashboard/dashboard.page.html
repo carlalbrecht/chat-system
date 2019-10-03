@@ -3,6 +3,12 @@
     <h1>Dashboard</h1>
     <a routerLink="/chat">Return to chat</a>
 
+    <h1>Profile</h1>
+
+    <h3>Picture</h3>
+    <img id="profile-picture" [class.default]="!user.profileUrlIsCustom" [src]="user.profileUrl">
+    <button (click)="uploadProfilePicture()">Change Picture</button>
+
     <ng-container *ngIf="user.hasPermission('super_admin')">
       <h1>User Management</h1>
 

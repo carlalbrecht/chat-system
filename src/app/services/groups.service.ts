@@ -1,14 +1,7 @@
-import { Injectable, isDevMode } from "@angular/core";
+import { Injectable, Inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 
 import { UserService } from './user.service';
-
-
-/**
- * Use the local web server for development (i.e. when the web server and
- * `ng serve` are running separately).
- */
-const HOST: string = isDevMode() ? "//localhost:3000" : "";
 
 
 export interface Group {
@@ -30,14 +23,15 @@ export class GroupsService {
 
   constructor(
     private http: HttpClient,
-    private user: UserService
+    private user: UserService,
+    @Inject("BASE_URL") private HOST: string
   ) { }
 
 
   public async getGroups(): Promise<GroupList> {
     try {
       return await
-        this.http.get<GroupList>(`${HOST}/api/users/${this.user.name}/groups`).toPromise();
+        this.http.get<GroupList>(`${this.HOST}/api/users/${this.user.name}/groups`).toPromise();
     } catch {
       return {};
     }
@@ -50,7 +44,7 @@ export class GroupsService {
     }
 
     try {
-      return (await this.http.post<Response>(`${HOST}/api/groups/create`, {
+      return (await this.http.post<Response>(`${this.HOST}/api/groups/create`, {
         name: name,
         creator: this.user.name
       }).toPromise()).success;
@@ -66,7 +60,7 @@ export class GroupsService {
     }
 
     try {
-      return (await this.http.delete<Response>(`${HOST}/api/groups/${groupID}`).toPromise()).success;
+      return (await this.http.delete<Response>(`${this.HOST}/api/groups/${groupID}`).toPromise()).success;
     } catch {
       return false;
     }
@@ -79,7 +73,7 @@ export class GroupsService {
     }
 
     try {
-      return (await this.http.post<Response>(`${HOST}/api/groups/${groupID}/assistants`, {
+      return (await this.http.post<Response>(`${this.HOST}/api/groups/${groupID}/assistants`, {
         assistants: assistants
       }).toPromise()).success;
     } catch {

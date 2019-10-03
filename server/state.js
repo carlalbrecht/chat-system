@@ -205,6 +205,8 @@ module.exports = {
    * @param {Object} list List of users, in the same format as `getUserList()`
    */
   setUserList: function (list) {
+    if (this.db === null) throw new Error("init() must be called first");
+
     let userList = [];
 
     // Convert to mongodb format
@@ -236,6 +238,18 @@ module.exports = {
         }
       });
     });
+  },
+
+
+  setUserProfile: function (userid, mediaid) {
+    if (this.db === null) throw new Error("init() must be called first");
+
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("users");
+
+      collection.updateOne(
+        { name: userid }, { $set: { profile: mediaid } }, () => resolve());
+    })
   },
 
 
