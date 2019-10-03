@@ -208,8 +208,15 @@ $accent-fg: #A537FD;
   flex-direction: column;
   flex-grow: 1;
 
-  #chat {
+  #chat-restrict-container {
+    position: relative;
+
+    overflow-y: auto;
     flex-grow: 1;
+  }
+
+  #chat {
+    position: absolute;
   }
 
   #chat-main {

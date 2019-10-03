@@ -148,9 +148,25 @@ export class UserService {
     this.profileUrlChanged = true;
 
     await this.http.post<any>(
-      `${this.HOST}/api/users/${this.userdata.username}/profile`,
+      `${this.HOST}/api/users/${this.name}/profile`,
       { media_id: imageID }
     ).toPromise();
+  }
+
+
+  public async getProfilePicture(userid: string = this.name): Promise<string | null> {
+    interface Response {
+      media_id?: string;
+    }
+
+    let response = await this.http.get<Response>(
+      `${this.HOST}/api/users/${userid}/profile`).toPromise();
+
+    if (response.hasOwnProperty("media_id")) {
+      return response.media_id;
+    }
+
+    return null;
   }
 
 

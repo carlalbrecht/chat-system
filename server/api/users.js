@@ -20,6 +20,12 @@ module.exports = (app, path, state) => {
       .catch(err => response.json({ error: err }));
   });
 
+  app.get("/api/users/:userid/profile", (request, response) => {
+    state.getUserProfile(request.params.userid)
+      .then(resp => response.json(resp))
+      .catch(err => response.json({ error: err }));
+  })
+
   app.get("/api/users", (_, response) => {
     state.getUserList()
       .then(resp => response.json(resp))

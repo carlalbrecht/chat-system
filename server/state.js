@@ -243,6 +243,27 @@ module.exports = {
   },
 
 
+  getUserProfile: function (userid) {
+    if (this.db === null) throw new Error("init() must be called first");
+
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("users");
+
+      collection.find({ name: userid }).limit(1).toArray((err, docs) => {
+        if (err) {
+          reject(err);
+        } else {
+          if (docs.length > 0 && docs[0].hasOwnProperty("profile")) {
+            resolve({ media_id: docs[0]["profile"] });
+          } else {
+            resolve({ media_id: null });
+          }
+        }
+      });
+    });
+  },
+
+
   setUserProfile: function (userid, mediaid) {
     if (this.db === null) throw new Error("init() must be called first");
 

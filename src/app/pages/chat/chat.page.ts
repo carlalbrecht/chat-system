@@ -5,7 +5,7 @@ import { UserService } from 'src/app/services/user.service';
 import { ModalService } from 'src/app/services/modal.service';
 import { GroupsService, GroupList } from 'src/app/services/groups.service';
 import { ChannelsService, ChannelList } from 'src/app/services/channels.service';
-import { ChatService } from 'src/app/services/chat.service';
+import { ChatService, ChatEvent } from 'src/app/services/chat.service';
 
 
 @Component({
@@ -25,7 +25,7 @@ export class ChatPage implements OnInit {
   public groupList: GroupList = {};
   public channelList: ChannelList = {};
 
-  public chatEvents = [];
+  public chatEvents: ChatEvent[] = [];
   public messageText: string = "";
 
 
@@ -77,6 +77,7 @@ export class ChatPage implements OnInit {
     }
 
     this.chat.events().subscribe(event => {
+      console.log(event);
       this.chatEvents.push(event);
     });
   }

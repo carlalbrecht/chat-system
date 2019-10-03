@@ -1,0 +1,22 @@
+<div id="root">
+  <img id="profile-picture" [src]="profileCache[chatEvent.from]">
+
+  <div id="content-section">
+    <div id="header">
+      <span id="username">{{ chatEvent.from }}</span>
+      <span id="post-time">{{ chatEvent.time | date: "yyyy/MM/dd h:mm:ss a" }}</span>
+    </div>
+
+    <div id="content" [ngSwitch]="chatEvent.type">
+      <ng-container *ngSwitchCase="'message'">
+        <span id="message-content">
+          {{ chatEvent.message }}
+        </span>
+      </ng-container>
+
+      <ng-container *ngSwitchCase="'media'">
+        <img id="media-image" [src]="mediaUrl">
+      </ng-container>
+    </div>
+  </div>
+</div>
