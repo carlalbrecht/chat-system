@@ -1,6 +1,8 @@
 /**
- * Hacked file-based persistence. This thing is totally web-scale and makes
- * Google's devs look like amateurs.
+ * ~Hacked file-based persistence. This thing is totally web-scale and makes
+ * Google's devs look like amateurs.~
+ *
+ * This is now using a database, so it is indeed _slightly_ better than before.
  */
 const { MongoClient, ObjectID } = require("mongodb");
 
@@ -487,6 +489,23 @@ module.exports = {
           }
         })
       });
+    });
+  },
+
+
+  logMessage: function (message) {
+    if (this.db === null) throw new Error("init() must be called first");
+
+    return new Promise((resolve, reject) => {
+      const collection = this.db.collection("messages");
+
+      collection.insertOne(message, (err, response) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      })
     });
   }
 

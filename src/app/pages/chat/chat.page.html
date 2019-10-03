@@ -75,7 +75,9 @@
     <div id="chat-main">
       <div id="chat-area">
         <div id="chat">
-
+          <p *ngFor="let event of chatEvents">
+            {{ event.message }}
+          </p>
         </div>
 
         <div id="chatbox-container">

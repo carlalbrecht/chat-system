@@ -25,6 +25,7 @@ export class ChatPage implements OnInit {
   public groupList: GroupList = {};
   public channelList: ChannelList = {};
 
+  public chatEvents = [];
   public messageText: string = "";
 
 
@@ -74,6 +75,10 @@ export class ChatPage implements OnInit {
     if (this.currentGroup !== undefined) {
       this.channelList = await this.channels.getChannels(this.currentGroup);
     }
+
+    this.chat.events().subscribe(event => {
+      this.chatEvents.push(event);
+    });
   }
 
 
