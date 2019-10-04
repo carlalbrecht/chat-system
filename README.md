@@ -1,27 +1,35 @@
-# ChatSystem
+# Chat System
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 8.1.2.
+This was created as an assignment for 2811ICT at Griffith University.
 
-## Development server
+## (Anti-)Features
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+ - Plaintext password storage
+ - Clientside verified permissions
+ - Polling for permissions updates
+ - Database resource leaks
+ 
+i.e. this thing is **not** designed to run in a production environment whatsoever. It exists
+purely to demonstrate simple client-server interactions and responsive SPA frontend techniques.
 
-## Code scaffolding
+## Running
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+### Server
 
-## Build
+```bash
+cd server
+npm install
+npm start
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+### Client
 
-## Running unit tests
+```bash
+npm install -g @angular/cli
+npm install
+ng serve
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+Alternatively, you can `ng build` the frontend before running the server, then navigate to the
+root of the server in a browser (e.g. `http://localhost:3000/`), in order to serve all resources
+from one place.
